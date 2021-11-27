@@ -19,6 +19,10 @@ contract Subscription {
     }
 
     function subscribe() external payable {
+        require(
+            subscribersList[msg.sender].subscribed == false,
+            "Already Subscribed"
+        );
         require(msg.value == subscriptionBaseValue, "Insufficient funds");
         Subscriber memory newSubscriber = Subscriber(
             true,

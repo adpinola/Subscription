@@ -36,7 +36,7 @@ contract("Subscription Contract should", (accounts) => {
     expect(balance.toNumber()).to.equal(baseValueWei);
   });
 
-  it("register a new subscriber and update the balance if the payed amount is correct", async () => {
+  it("return an error if the ammount sent to perform the subscription is invalid", async () => {
     const ERROR_REASON = "Insufficient funds";
     try {
       await contractUnderTest.subscribe({
@@ -45,6 +45,24 @@ contract("Subscription Contract should", (accounts) => {
       });
     } catch (error) {
       expect(error.reason).to.equal(ERROR_REASON);
+    }
+  });
+
+  it("return an error if the new subscriber was already subscribed", async () => {
+    const ERROR_REASON = "Already Subscribed";
+    try {
+      await contractUnderTest.subscribe({
+        from: subscriber,
+        value: baseValueWei,
+      });
+      await contractUnderTest.subscribe({
+        from: subscriber,
+        value: baseValueWei,
+      });
+    } catch (error) {
+      expect(error.reason).to.equal(ERROR_REASON);
+      const balance = await contractUnderTest.getBalance.call({ from: owner });
+      expect(balance.toNumber()).to.equal(baseValueWei);
     }
   });
 });
