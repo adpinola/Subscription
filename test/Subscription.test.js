@@ -1,6 +1,6 @@
-let Subscription = artifacts.require("./Subscription.sol");
+let Subscription = artifacts.require('./Subscription.sol');
 
-contract("Subscription Contract should", (accounts) => {
+contract('Subscription Contract should', (accounts) => {
   let contractUnderTest;
   const baseValueWei = 100000000;
   let owner;
@@ -12,14 +12,13 @@ contract("Subscription Contract should", (accounts) => {
     contractUnderTest = await Subscription.new(baseValueWei);
   });
 
-  it("return balance 0 by default", async () => {
+  it('return balance 0 by default', async () => {
     const balance = await contractUnderTest.getBalance.call({ from: owner });
     expect(balance.toNumber()).to.equal(0);
   });
 
-  it("return an error if other but the owner asks for balance", async () => {
-    const ERROR_MSG =
-      "Returned error: VM Exception while processing transaction: revert Only the owner can call this method";
+  it('return an error if other but the owner asks for balance', async () => {
+    const ERROR_MSG = 'Returned error: VM Exception while processing transaction: revert Not Owner';
     try {
       await contractUnderTest.getBalance.call({ from: subscriber });
     } catch (error) {
@@ -27,7 +26,7 @@ contract("Subscription Contract should", (accounts) => {
     }
   });
 
-  it("register a new subscriber and update the balance if the payed amount is correct", async () => {
+  it('register a new subscriber and update the balance if the payed amount is correct', async () => {
     await contractUnderTest.subscribe({
       from: subscriber,
       value: baseValueWei,
@@ -36,8 +35,8 @@ contract("Subscription Contract should", (accounts) => {
     expect(balance.toNumber()).to.equal(baseValueWei);
   });
 
-  it("return an error if the ammount sent to perform the subscription is invalid", async () => {
-    const ERROR_REASON = "Insufficient funds";
+  it('return an error if the ammount sent to perform the subscription is invalid', async () => {
+    const ERROR_REASON = 'Insufficient funds';
     try {
       await contractUnderTest.subscribe({
         from: subscriber,
@@ -48,8 +47,8 @@ contract("Subscription Contract should", (accounts) => {
     }
   });
 
-  it("return an error if the new subscriber was already subscribed", async () => {
-    const ERROR_REASON = "Already Subscribed";
+  it('return an error if the new subscriber was already subscribed', async () => {
+    const ERROR_REASON = 'Already Subscribed';
     try {
       await contractUnderTest.subscribe({
         from: subscriber,

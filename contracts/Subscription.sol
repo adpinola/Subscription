@@ -10,7 +10,7 @@ contract Subscription {
 
     address private owner;
     uint256 public subscriptionBaseValue;
-    mapping(address => Subscriber) subscribersList;
+    mapping(address => Subscriber) private subscribersList;
 
     constructor(uint256 _subscriptionBaseValue) {
         subscriptionBaseValue = _subscriptionBaseValue;
@@ -34,18 +34,18 @@ contract Subscription {
     }
 
     function getBalance() external view returns (uint256) {
-        require(msg.sender == owner, "Only the owner can call this method");
+        require(msg.sender == owner, "Not Owner");
         return address(this).balance;
     }
 
     function withdraw() external {
-        require(msg.sender == owner);
+        require(msg.sender == owner, "Not Owner");
         (bool sent, ) = msg.sender.call{value: address(this).balance}("");
         require(sent, "Failed to send Ether");
     }
 
     function remove() external {
-        require(msg.sender == owner);
+        require(msg.sender == owner, "Not Owner");
         selfdestruct(payable(owner));
     }
 }

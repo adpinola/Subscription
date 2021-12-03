@@ -1,0 +1,37 @@
+{
+  "name": "subscription-contract",
+  "version": "0.0.1",
+  "description": "Web Application the uses a Smart Contract to allow logins",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test:contract": "truffle test",
+    "solhint": "./node_modules/.bin/solhint -f table contracts/**/*.sol",
+    "lint:eslint": "eslint",
+    "format:eslint": "eslint --fix",
+    "lint:prettier": "prettier \"**/*.js\" --check",
+    "format:prettier": "prettier \"**/*.js\" \"contracts/**/*.sol\" --write",
+    "linter": "npm run lint:eslint & npm run lint:prettier",
+    "format": "npm run format:eslint && npm run format:prettier"
+  },
+  "keywords": [
+    "solidity",
+    "smart",
+    "contracts",
+    "web3",
+    "react",
+    "truffle"
+  ],
+  "author": "adpinola",
+  "license": "ISC",
+  "dependencies": {
+    "web3": "^1.6.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.3.0",
+    "prettier": "^2.5.0",
+    "prettier-plugin-solidity": "^1.0.0-beta.19",
+    "solhint": "^3.3.6"
+  }
+}

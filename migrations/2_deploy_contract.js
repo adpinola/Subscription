@@ -1,4 +1,4 @@
-const Subscription = artifacts.require("../contracts/Subscription.sol");
+const Subscription = artifacts.require('../contracts/Subscription.sol');
 const subscriptionBaseValue = 1000000000;
 
 const deploy = async (deployer, network, accounts) => {
