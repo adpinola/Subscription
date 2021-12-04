@@ -1,15 +1,16 @@
-let Subscription = artifacts.require('./Subscription.sol');
+const Subscription = artifacts.require('./Subscription.sol');
 
 contract('Subscription Contract should', (accounts) => {
   let contractUnderTest;
   const baseValueWei = 100000000;
+  const subscriptonDuration = 1;
   let owner;
   let subscriber;
 
   beforeEach(async () => {
     owner = accounts[0];
     subscriber = accounts[1];
-    contractUnderTest = await Subscription.new(baseValueWei);
+    contractUnderTest = await Subscription.new(baseValueWei, subscriptonDuration, { from: owner });
   });
 
   it('return balance 0 by default', async () => {
@@ -63,5 +64,16 @@ contract('Subscription Contract should', (accounts) => {
       const balance = await contractUnderTest.getBalance.call({ from: owner });
       expect(balance.toNumber()).to.equal(baseValueWei);
     }
+  });
+
+  it('return the subcription status as a boolean', async () => {
+    const initialSubscriptionStatus = await contractUnderTest.amISubscribed.call({ from: subscriber });
+    expect(initialSubscriptionStatus).to.be.false;
+    await contractUnderTest.subscribe({
+      from: subscriber,
+      value: baseValueWei,
+    });
+    const finalSubscriptionStatus = await contractUnderTest.amISubscribed.call({ from: subscriber });
+    expect(finalSubscriptionStatus).to.be.true;
   });
 });

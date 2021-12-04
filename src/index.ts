@@ -3,9 +3,9 @@ const Web3 = require('web3');
 
 const { port, host, from: ownerAddress, network_id: networkId } = truffleConfig.networks.ganache;
 
-const Subscription = require('../build/contracts/Subscription.json');
-const contractAddress = Subscription.networks[networkId].address;
-const contractAbi = Subscription.abi;
+const contractData = require('../build/contracts/Subscription.json');
+const contractAddress = contractData.networks[networkId].address;
+const contractAbi = contractData.abi;
 
 const web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider(`http://${host}:${port}`));

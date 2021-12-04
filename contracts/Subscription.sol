@@ -10,19 +10,30 @@ contract Subscription {
 
     address private owner;
     uint256 public subscriptionBaseValue;
+    uint256 public subscriptionDuration;
     mapping(address => Subscriber) private subscribersList;
 
-    constructor(uint256 _subscriptionBaseValue) {
-        subscriptionBaseValue = _subscriptionBaseValue;
+    constructor(uint256 _baseValue, uint256 _durationInMinutes) {
+        subscriptionBaseValue = _baseValue;
+        subscriptionDuration = _durationInMinutes * 1 minutes;
         owner = msg.sender;
         subscribersList[owner] = Subscriber(true, 0, block.timestamp);
     }
 
-    function subscribe() external payable {
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not Owner");
+        _;
+    }
+
+    modifier notSubscribed() {
         require(
             subscribersList[msg.sender].subscribed == false,
             "Already Subscribed"
         );
+        _;
+    }
+
+    function subscribe() external payable notSubscribed {
         require(msg.value == subscriptionBaseValue, "Insufficient funds");
         Subscriber memory newSubscriber = Subscriber(
             true,
@@ -33,19 +44,23 @@ contract Subscription {
         // return newSubscriber.subscribedAt; --> Should Fire an event here.
     }
 
-    function getBalance() external view returns (uint256) {
-        require(msg.sender == owner, "Not Owner");
+    function getBalance() external view onlyOwner returns (uint256) {
         return address(this).balance;
     }
 
-    function withdraw() external {
-        require(msg.sender == owner, "Not Owner");
-        (bool sent, ) = msg.sender.call{value: address(this).balance}("");
-        require(sent, "Failed to send Ether");
+    function amISubscribed() external returns (bool) {
+        if(block.timestamp > subscribersList[msg.sender].subscribedAt + subscriptionDuration) {
+            subscribersList[msg.sender].subscribed = false;
+        }
+        return subscribersList[msg.sender].subscribed;
     }
 
-    function remove() external {
-        require(msg.sender == owner, "Not Owner");
+    function remove() external onlyOwner {
         selfdestruct(payable(owner));
+    }
+
+    function withdraw() external onlyOwner {
+        (bool sent, ) = msg.sender.call{value: address(this).balance}("");
+        require(sent, "Failed to send Ether");
     }
 }
