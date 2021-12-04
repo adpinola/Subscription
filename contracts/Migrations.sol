@@ -10,7 +10,13 @@ contract Migrations {
         _;
     }
 
+    // A function with the signature `setCompleted(uint)` is required.
     function setCompleted(uint256 completed) public restricted {
         lastCompletedMigration = completed;
+    }
+
+    function upgrade(address newAddress) public restricted {
+        Migrations upgraded = Migrations(newAddress);
+        upgraded.setCompleted(lastCompletedMigration);
     }
 }

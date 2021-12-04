@@ -6,6 +6,9 @@
     "test": "test"
   },
   "scripts": {
+    "build" : "truffle compile",
+    "deploy": "truffle deploy",
+    "contract:interact": "node src/index.ts",
     "test:contract": "truffle test",
     "solhint": "./node_modules/.bin/solhint -f table contracts/**/*.sol",
     "lint:eslint": "eslint",
