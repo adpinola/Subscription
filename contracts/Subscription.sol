@@ -25,34 +25,34 @@ contract Subscription {
         _;
     }
 
-    modifier notSubscribed() {
-        require(
-            subscribersList[msg.sender].subscribed == false,
-            "Already Subscribed"
-        );
+    modifier isSubscribed(bool expectedState) {
+        string memory message = expectedState ? "Not Subscribed" : "Already Subscribed";
+        require(subscribersList[msg.sender].subscribed == expectedState, message);
         _;
     }
 
-    function subscribe() external payable notSubscribed {
+    modifier exactAmount() {
         require(msg.value == subscriptionBaseValue, "Insufficient funds");
-        Subscriber memory newSubscriber = Subscriber(
-            true,
-            msg.value,
-            block.timestamp
-        );
+        _;
+    }
+
+    function subscribe() external payable isSubscribed(false) exactAmount {
+        Subscriber memory newSubscriber = Subscriber(true, msg.value, block.timestamp);
         subscribersList[msg.sender] = newSubscriber;
-        // return newSubscriber.subscribedAt; --> Should Fire an event here.
+    }
+
+    function renew() external payable isSubscribed(true) exactAmount {
+        subscribersList[msg.sender].payedAmount += msg.value;
+        subscribersList[msg.sender].subscribedAt = block.timestamp;
     }
 
     function getBalance() external view onlyOwner returns (uint256) {
         return address(this).balance;
     }
 
-    function amISubscribed() external returns (bool) {
-        if(block.timestamp > subscribersList[msg.sender].subscribedAt + subscriptionDuration) {
-            subscribersList[msg.sender].subscribed = false;
-        }
-        return subscribersList[msg.sender].subscribed;
+    function amISubscribed() external view returns (bool) {
+        uint256 limitDate = subscribersList[msg.sender].subscribedAt + subscriptionDuration;
+        return block.timestamp <= limitDate;
     }
 
     function remove() external onlyOwner {

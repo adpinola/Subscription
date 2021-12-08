@@ -1,15 +1,24 @@
 const Subscription = artifacts.require('./Subscription.sol');
+const timeMachine = require('ganache-time-traveler');
+
 const { subscriptionValue, durationInMinutes } = require('../environment.json');
 
 contract('Subscription Contract should', (accounts) => {
   let contractUnderTest;
   let owner;
   let subscriber;
+  let snapshotId;
 
   beforeEach(async () => {
+    const snapshot = await timeMachine.takeSnapshot();
+    snapshotId = snapshot['result'];
     owner = accounts[0];
     subscriber = accounts[1];
     contractUnderTest = await Subscription.new(subscriptionValue, durationInMinutes, { from: owner });
+  });
+
+  afterEach(async () => {
+    await timeMachine.revertToSnapshot(snapshotId);
   });
 
   it('return balance 0 by default', async () => {
@@ -69,6 +78,30 @@ contract('Subscription Contract should', (accounts) => {
     const initialSubscriptionStatus = await contractUnderTest.amISubscribed.call({ from: subscriber });
     expect(initialSubscriptionStatus).to.be.false;
     await contractUnderTest.subscribe({
+      from: subscriber,
+      value: subscriptionValue,
+    });
+    const finalSubscriptionStatus = await contractUnderTest.amISubscribed.call({ from: subscriber });
+    expect(finalSubscriptionStatus).to.be.true;
+  });
+
+  it('return "false" if the subcription has expired', async () => {
+    await contractUnderTest.subscribe({
+      from: subscriber,
+      value: subscriptionValue,
+    });
+    await timeMachine.advanceTimeAndBlock(durationInMinutes * 60 + 1);
+    const finalSubscriptionStatus = await contractUnderTest.amISubscribed.call({ from: subscriber });
+    expect(finalSubscriptionStatus).to.be.false;
+  });
+
+  it('allow a subscriber to renew its subscription after it has expired', async () => {
+    await contractUnderTest.subscribe({
+      from: subscriber,
+      value: subscriptionValue,
+    });
+    await timeMachine.advanceTimeAndBlock(durationInMinutes * 60 + 1);
+    await contractUnderTest.renew({
       from: subscriber,
       value: subscriptionValue,
     });
