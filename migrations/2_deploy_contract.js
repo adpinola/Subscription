@@ -1,9 +1,8 @@
 const Subscription = artifacts.require('../contracts/Subscription.sol');
-const baseValue = 1000000000;
-const durationInMinutes = 1;
+const { subscriptionValue, durationInMinutes } = require('../environment.json');
 
 const deploy = async (deployer, network, accounts) => {
-  await deployer.deploy(Subscription, baseValue, durationInMinutes);
+  await deployer.deploy(Subscription, subscriptionValue, durationInMinutes);
 };
 
 module.exports = deploy;

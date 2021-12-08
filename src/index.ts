@@ -1,5 +1,6 @@
 const truffleConfig = require('../truffle-config');
 const Web3 = require('web3');
+const { subscriptionValue } = require('../environment.json');
 
 const { port, host, from: ownerAddress, network_id: networkId } = truffleConfig.networks.ganache;
 
@@ -16,8 +17,8 @@ const payload = process.argv[3];
 
 const subscribe = async (address) => {
   try {
-    await subscriptionContract.methods.subscribe().send({ from: address, value: 1000000000 });
-    console.log(`Wallet ${address} subscribed. Just payed 1000000000 wei`);
+    await subscriptionContract.methods.subscribe().send({ from: address, value: subscriptionValue });
+    console.log(`Wallet ${address} subscribed. Just payed ${subscriptionValue} wei`);
   } catch (err) {
     console.error(err);
   }

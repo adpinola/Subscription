@@ -1,16 +1,15 @@
 const Subscription = artifacts.require('./Subscription.sol');
+const { subscriptionValue, durationInMinutes } = require('../environment.json');
 
 contract('Subscription Contract should', (accounts) => {
   let contractUnderTest;
-  const baseValueWei = 100000000;
-  const subscriptonDuration = 1;
   let owner;
   let subscriber;
 
   beforeEach(async () => {
     owner = accounts[0];
     subscriber = accounts[1];
-    contractUnderTest = await Subscription.new(baseValueWei, subscriptonDuration, { from: owner });
+    contractUnderTest = await Subscription.new(subscriptionValue, durationInMinutes, { from: owner });
   });
 
   it('return balance 0 by default', async () => {
@@ -30,10 +29,10 @@ contract('Subscription Contract should', (accounts) => {
   it('register a new subscriber and update the balance if the payed amount is correct', async () => {
     await contractUnderTest.subscribe({
       from: subscriber,
-      value: baseValueWei,
+      value: subscriptionValue,
     });
     const balance = await contractUnderTest.getBalance.call({ from: owner });
-    expect(balance.toNumber()).to.equal(baseValueWei);
+    expect(balance.toNumber()).to.equal(subscriptionValue);
   });
 
   it('return an error if the ammount sent to perform the subscription is invalid', async () => {
@@ -41,7 +40,7 @@ contract('Subscription Contract should', (accounts) => {
     try {
       await contractUnderTest.subscribe({
         from: subscriber,
-        value: baseValueWei - 1,
+        value: subscriptionValue - 1,
       });
     } catch (error) {
       expect(error.reason).to.equal(ERROR_REASON);
@@ -53,16 +52,16 @@ contract('Subscription Contract should', (accounts) => {
     try {
       await contractUnderTest.subscribe({
         from: subscriber,
-        value: baseValueWei,
+        value: subscriptionValue,
       });
       await contractUnderTest.subscribe({
         from: subscriber,
-        value: baseValueWei,
+        value: subscriptionValue,
       });
     } catch (error) {
       expect(error.reason).to.equal(ERROR_REASON);
       const balance = await contractUnderTest.getBalance.call({ from: owner });
-      expect(balance.toNumber()).to.equal(baseValueWei);
+      expect(balance.toNumber()).to.equal(subscriptionValue);
     }
   });
 
@@ -71,7 +70,7 @@ contract('Subscription Contract should', (accounts) => {
     expect(initialSubscriptionStatus).to.be.false;
     await contractUnderTest.subscribe({
       from: subscriber,
-      value: baseValueWei,
+      value: subscriptionValue,
     });
     const finalSubscriptionStatus = await contractUnderTest.amISubscribed.call({ from: subscriber });
     expect(finalSubscriptionStatus).to.be.true;
