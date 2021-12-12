@@ -1,0 +1,12 @@
+@use './variables';
+
+// Override default bootstrap variables
+$body-bg: variables.$white-background;
+$body-color: variables.$black-primary;
+$primary: variables.$lightblue;
+$secondary: variables.$light-pink;
+
+$modal-backdrop-bg: variables.$black-primary;
+$modal-content-bg: variables.$white-background;
+
+@import '~bootstrap/scss/bootstrap.scss';
