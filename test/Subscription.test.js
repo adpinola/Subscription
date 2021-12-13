@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-undef */
 const Subscription = artifacts.require('./Subscription.sol');
 const timeMachine = require('ganache-time-traveler');
 
@@ -11,14 +13,18 @@ contract('Subscription Contract should', (accounts) => {
 
   beforeEach(async () => {
     const snapshot = await timeMachine.takeSnapshot();
-    snapshotId = snapshot['result'];
-    owner = accounts[0];
-    subscriber = accounts[1];
+    snapshotId = snapshot.result;
+    [owner, subscriber] = accounts;
     contractUnderTest = await Subscription.new(subscriptionValue, durationInMinutes, { from: owner });
   });
 
   afterEach(async () => {
     await timeMachine.revertToSnapshot(snapshotId);
+  });
+
+  it("return owner's address", async () => {
+    const ownerAddress = await contractUnderTest.owner.call({ from: owner });
+    expect(ownerAddress).to.equal(owner);
   });
 
   it('return balance 0 by default', async () => {

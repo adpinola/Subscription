@@ -9,19 +9,22 @@ import { abi, networks } from '../assets/Subscription.json';
 const contractAddress = networks['5777'].address;
 
 const SubscriptionContext = React.createContext<ISubscriptionContract | undefined>(undefined);
-const Web3Context = React.createContext<Web3 | undefined>(undefined);
+const MetaMaskContext = React.createContext<(() => Promise<void>) | undefined>(undefined);
+const AccountContext = React.createContext<string>('');
 
 interface ISmartContractContextProvider {
   children: React.ReactNode;
 }
 
 const SmartContractContextProvider: FC<ISmartContractContextProvider> = (props) => {
-  const web3 = useWeb3();
+  const { web3, account, connectToMetaMask } = useWeb3();
   const contractInstance = useSubscriptionContract(web3 as Web3, abi as AbiItem[], contractAddress);
   return (
-    <Web3Context.Provider value={web3}>
-      <SubscriptionContext.Provider value={contractInstance}>{props.children}</SubscriptionContext.Provider>
-    </Web3Context.Provider>
+    <AccountContext.Provider value={account}>
+      <MetaMaskContext.Provider value={connectToMetaMask}>
+        <SubscriptionContext.Provider value={contractInstance}>{props.children}</SubscriptionContext.Provider>
+      </MetaMaskContext.Provider>
+    </AccountContext.Provider>
   );
 };
 
@@ -33,12 +36,20 @@ function useSubscriptionContext() {
   return context;
 }
 
-function useWeb3Context() {
-  const context = React.useContext(Web3Context);
+function useMetaMask() {
+  const context = React.useContext(MetaMaskContext);
   if (context === undefined) {
-    throw new Error('useWeb3Context must be used within an SmartContractContextProvider');
+    throw new Error('useMetaMask must be used within an SmartContractContextProvider');
   }
   return context;
 }
 
-export { SmartContractContextProvider, useSubscriptionContext, useWeb3Context };
+function useAccount() {
+  const context = React.useContext(AccountContext);
+  if (context === undefined) {
+    throw new Error('useAccount must be used within an SmartContractContextProvider');
+  }
+  return context;
+}
+
+export { SmartContractContextProvider, useSubscriptionContext, useMetaMask, useAccount };

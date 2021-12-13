@@ -8,7 +8,7 @@ contract Subscription {
         uint256 subscribedAt;
     }
 
-    address private owner;
+    address public owner;
     uint256 public subscriptionBaseValue;
     uint256 public subscriptionDuration;
     mapping(address => Subscriber) private subscribersList;
