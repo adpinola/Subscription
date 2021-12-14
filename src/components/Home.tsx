@@ -1,11 +1,17 @@
 import React, { FC } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import MetaMaskIcon from './MetaMaskIcon';
-import { useMetaMask, useAccount } from '../context/SmartContractContext';
+import { useMetaMask, useAccount, useSubscriptionContext } from '../context/SmartContractContext';
 
 const Home: FC = () => {
   const connect = useMetaMask();
   const account = useAccount();
+  const contract = useSubscriptionContext();
+
+  const subscribe = async () => {
+    const { subscriptionValue } = await contract.getAllContractData(account);
+    await contract.subscribe(account, subscriptionValue);
+  };
 
   return (
     <Modal show centered>
@@ -19,7 +25,7 @@ const Home: FC = () => {
         {account.length ? (
           <>
             Connected with wallet <b>{account}</b>
-            <Button variant="secondary" className="d-flex">
+            <Button variant="secondary" onClick={subscribe} className="d-flex">
               <div>Subscribe Now!!</div>
             </Button>
           </>

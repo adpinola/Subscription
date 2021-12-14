@@ -12,25 +12,25 @@ const App: FC = () => {
   const [isOwner, setIsOwner] = useState(true);
   const [isSubscribed, setIsSubscribed] = useState(true);
 
-  const checkAccount = useCallback(async () => {
-    const checkIfIsOwner = async (): Promise<boolean> => {
-      const contractData = await contract.getAllContractData(account);
-      if (contractData.owner.toUpperCase() === account.toUpperCase()) {
-        return true;
-      }
-      return false;
-    };
+  const checkIfIsOwner = useCallback(async (): Promise<boolean> => {
+    const contractData = await contract.getAllContractData(account);
+    if (contractData.owner.toUpperCase() === account.toUpperCase()) {
+      return true;
+    }
+    return false;
+  }, [contract, account]);
 
-    const checkIfIsSubscribed = async (): Promise<boolean> => {
-      return contract.amISubscribed(account);
-    };
+  const checkIfIsSubscribed = useCallback(async (): Promise<boolean> => {
+    return contract.amISubscribed(account);
+  }, [contract, account]);
+
+  const checkAccount = useCallback(async () => {
     if (!account) return;
     const ownership = await checkIfIsOwner();
     const subscription = await checkIfIsSubscribed();
-    console.log({ ownership, subscription });
     setIsOwner(ownership);
     setIsSubscribed(subscription);
-  }, [account, contract]);
+  }, [account, checkIfIsOwner, checkIfIsSubscribed]);
 
   useEffect(() => {
     checkAccount();
