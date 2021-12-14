@@ -8,6 +8,8 @@ contract Subscription {
         uint256 subscribedAt;
     }
 
+    event SubscriptionSuccess(address indexed from, uint256 subscribedAt);
+
     address public owner;
     uint256 public subscriptionBaseValue;
     uint256 public subscriptionDuration;
@@ -25,34 +27,31 @@ contract Subscription {
         _;
     }
 
-    modifier isSubscribed(bool expectedState) {
-        string memory message = expectedState ? "Not Subscribed" : "Already Subscribed";
-        require(subscribersList[msg.sender].subscribed == expectedState, message);
-        _;
-    }
-
     modifier exactAmount() {
         require(msg.value == subscriptionBaseValue, "Insufficient funds");
         _;
     }
 
-    function subscribe() external payable isSubscribed(false) exactAmount {
-        Subscriber memory newSubscriber = Subscriber(true, msg.value, block.timestamp);
-        subscribersList[msg.sender] = newSubscriber;
-    }
-
-    function renew() external payable isSubscribed(true) exactAmount {
-        subscribersList[msg.sender].payedAmount += msg.value;
-        subscribersList[msg.sender].subscribedAt = block.timestamp;
+    function subscribe() external payable exactAmount {
+        if (subscribersList[msg.sender].subscribed == true) {
+            require(!this.isSubscriptionValid(), "Subscription is still active");
+            subscribersList[msg.sender].payedAmount += msg.value;
+            subscribersList[msg.sender].subscribedAt = block.timestamp;
+        } else {
+            Subscriber memory newSubscriber = Subscriber(true, msg.value, block.timestamp);
+            subscribersList[msg.sender] = newSubscriber;
+        }
+        emit SubscriptionSuccess(msg.sender, block.timestamp);
     }
 
     function getBalance() external view onlyOwner returns (uint256) {
         return address(this).balance;
     }
 
-    function amISubscribed() external view returns (bool) {
+    function isSubscriptionValid() external view returns (bool) {
+        bool isSubscribed = subscribersList[msg.sender].subscribed == true;
         uint256 limitDate = subscribersList[msg.sender].subscribedAt + subscriptionDuration;
-        return block.timestamp <= limitDate;
+        return isSubscribed && block.timestamp <= limitDate;
     }
 
     function remove() external onlyOwner {

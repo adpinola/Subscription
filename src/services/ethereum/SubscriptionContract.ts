@@ -22,12 +22,8 @@ export default class SubscriptionContract implements ISubscriptionContract {
     return this.contractInstance.methods.withdraw().send({ from });
   }
 
-  async renew(from: string, value: number): Promise<void> {
-    return this.contractInstance.methods.subscribe().renew({ from, value });
-  }
-
-  async amISubscribed(from: string): Promise<boolean> {
-    return this.contractInstance.methods.amISubscribed().call({ from });
+  async isSubscriptionValid(from: string): Promise<boolean> {
+    return this.contractInstance.methods.isSubscriptionValid().call({ from });
   }
 
   async remove(from: string): Promise<void> {

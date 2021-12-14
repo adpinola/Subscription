@@ -50,6 +50,18 @@ contract('Subscription Contract should', (accounts) => {
     expect(balance.toNumber()).to.equal(subscriptionValue);
   });
 
+  it('emit an event when the subscription succeeds', async () => {
+    const transaction = await contractUnderTest.subscribe({
+      from: subscriber,
+      value: subscriptionValue,
+    });
+
+    const events = transaction.logs;
+    expect(events.length).to.equal(1);
+    const event = events[0];
+    expect(event.args.from).to.equal(subscriber);
+  });
+
   it('return an error if the ammount sent to perform the subscription is invalid', async () => {
     const ERROR_REASON = 'Insufficient funds';
     try {
@@ -62,8 +74,8 @@ contract('Subscription Contract should', (accounts) => {
     }
   });
 
-  it('return an error if the new subscriber was already subscribed', async () => {
-    const ERROR_REASON = 'Already Subscribed';
+  it('return an error if the subscriber attempts to resuscribe before expiring current subscription', async () => {
+    const ERROR_REASON = 'Subscription is still active';
     try {
       await contractUnderTest.subscribe({
         from: subscriber,
@@ -81,14 +93,17 @@ contract('Subscription Contract should', (accounts) => {
   });
 
   it('return the subcription status as a boolean', async () => {
-    const initialSubscriptionStatus = await contractUnderTest.amISubscribed.call({ from: subscriber });
-    expect(initialSubscriptionStatus).to.be.false;
     await contractUnderTest.subscribe({
       from: subscriber,
       value: subscriptionValue,
     });
-    const finalSubscriptionStatus = await contractUnderTest.amISubscribed.call({ from: subscriber });
-    expect(finalSubscriptionStatus).to.be.true;
+    const subscriptionStatus = await contractUnderTest.isSubscriptionValid.call({ from: subscriber });
+    expect(subscriptionStatus).to.be.true;
+  });
+
+  it('return "false" if an unsubscribed user attempts to retrieve its status', async () => {
+    const subscriptionStatus = await contractUnderTest.isSubscriptionValid.call({ from: subscriber });
+    expect(subscriptionStatus).to.be.false;
   });
 
   it('return "false" if the subcription has expired', async () => {
@@ -97,8 +112,8 @@ contract('Subscription Contract should', (accounts) => {
       value: subscriptionValue,
     });
     await timeMachine.advanceTimeAndBlock(durationInMinutes * 60 + 1);
-    const finalSubscriptionStatus = await contractUnderTest.amISubscribed.call({ from: subscriber });
-    expect(finalSubscriptionStatus).to.be.false;
+    const subscriptionStatus = await contractUnderTest.isSubscriptionValid.call({ from: subscriber });
+    expect(subscriptionStatus).to.be.false;
   });
 
   it('allow a subscriber to renew its subscription after it has expired', async () => {
@@ -107,11 +122,11 @@ contract('Subscription Contract should', (accounts) => {
       value: subscriptionValue,
     });
     await timeMachine.advanceTimeAndBlock(durationInMinutes * 60 + 1);
-    await contractUnderTest.renew({
+    await contractUnderTest.subscribe({
       from: subscriber,
       value: subscriptionValue,
     });
-    const finalSubscriptionStatus = await contractUnderTest.amISubscribed.call({ from: subscriber });
-    expect(finalSubscriptionStatus).to.be.true;
+    const subscriptionStatus = await contractUnderTest.isSubscriptionValid.call({ from: subscriber });
+    expect(subscriptionStatus).to.be.true;
   });
 });
