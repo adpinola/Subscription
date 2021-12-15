@@ -32,9 +32,15 @@ contract Subscription {
         _;
     }
 
+    function isSubscriptionValid() public view returns (bool) {
+        bool isSubscribed = subscribersList[msg.sender].subscribed == true;
+        uint256 limitDate = subscribersList[msg.sender].subscribedAt + subscriptionDuration;
+        return isSubscribed && block.timestamp <= limitDate;
+    }
+    
     function subscribe() external payable exactAmount {
         if (subscribersList[msg.sender].subscribed == true) {
-            require(!this.isSubscriptionValid(), "Subscription is still active");
+            require(!isSubscriptionValid(), "Subscription is still active");
             subscribersList[msg.sender].payedAmount += msg.value;
             subscribersList[msg.sender].subscribedAt = block.timestamp;
         } else {
@@ -46,12 +52,6 @@ contract Subscription {
 
     function getBalance() external view onlyOwner returns (uint256) {
         return address(this).balance;
-    }
-
-    function isSubscriptionValid() external view returns (bool) {
-        bool isSubscribed = subscribersList[msg.sender].subscribed == true;
-        uint256 limitDate = subscribersList[msg.sender].subscribedAt + subscriptionDuration;
-        return isSubscribed && block.timestamp <= limitDate;
     }
 
     function remove() external onlyOwner {

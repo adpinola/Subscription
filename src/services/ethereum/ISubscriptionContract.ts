@@ -7,4 +7,5 @@ export default interface ISubscriptionContract {
   isSubscriptionValid: (from: string) => Promise<boolean>;
   remove: (from: string) => Promise<void>;
   getAllContractData: (from: string) => Promise<IContractData>;
+  onSubscriptionSuccess: (from: string, callback: (data: any) => void) => void;
 }

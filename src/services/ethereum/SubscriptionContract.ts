@@ -40,4 +40,8 @@ export default class SubscriptionContract implements ISubscriptionContract {
       subscriptionDuration,
     };
   }
+
+  onSubscriptionSuccess(from: string, callback: (data: any) => void) {
+    this.contractInstance.events.SubscriptionSuccess({ filter: { from } }).on('data', callback);
+  }
 }

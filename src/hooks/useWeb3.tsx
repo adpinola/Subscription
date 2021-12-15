@@ -7,12 +7,12 @@ const useWeb3 = () => {
 
   const connectToMetaMask = async () => {
     const accounts = await web3.eth.requestAccounts();
-    setAccount(accounts[0]);
+    setAccount(accounts.length ? accounts[0] : '');
   };
 
   useEffect(() => {
     const accountsChangedCallback = (event: string[]): void => {
-      setAccount(event[0]);
+      setAccount(event.length ? event[0] : '');
     };
 
     const getAccountData = async () => {

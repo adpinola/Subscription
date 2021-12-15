@@ -6,7 +6,7 @@ interface IPrivateRoute {
 }
 
 const PrivateRoute: FC<IPrivateRoute> = (props: IPrivateRoute) => {
-  return props.authCondition ? <Outlet /> : <Navigate to="/" />;
+  return props.authCondition ? <Outlet /> : <Navigate to="/login" />;
 };
 
 export default PrivateRoute;
