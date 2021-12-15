@@ -21,11 +21,47 @@ const Login: FC<ILogin> = ({ onSuccess }: ILogin) => {
   const navigate = useNavigate();
   const contract = useSubscriptionContext();
 
-  contract.onSubscriptionSuccess(account, (data: any) => {
+  // #region Account Change
+  useEffect(() => {
+    const onAccountChange = async () => {
+      if (!account || !contract) {
+        setLoginStatus(LoginStatus.Disconnected);
+        return;
+      }
+      const validSubscription = await contract.isSubscriptionValid(account);
+      if (validSubscription) setLoginStatus(LoginStatus.Succeeded);
+      else setLoginStatus(LoginStatus.Connected);
+    };
+    onAccountChange();
+  }, [account, contract]);
+  // #endregion
+
+  // #region Login Success
+  useEffect(() => {
+    if (loginStatus === LoginStatus.Succeeded) onSuccess();
+  }, [loginStatus, onSuccess]);
+  // #endregion
+
+  // #region SubscriptionSuccess event handling
+  const loginSuccess = async (data: any) => {
     const { from, subscribedAt } = data.returnValues;
     console.log({ event: data.event, from, subscribedAt });
     setLoginStatus(LoginStatus.Succeeded);
-  });
+  };
+
+  useEffect(() => {
+    contract.onSubscriptionSuccess(account, loginSuccess);
+    return () => {
+      contract.offSubscriptionSuccess(account, loginSuccess);
+    };
+  }, [contract, account]);
+  // #endregion
+
+  // #region Buttons Callback
+  const connectWallet = async () => {
+    await connect();
+    setLoginStatus(LoginStatus.Connected);
+  };
 
   const subscribe = async () => {
     const { subscriptionValue } = await contract.getAllContractData(account);
@@ -35,26 +71,11 @@ const Login: FC<ILogin> = ({ onSuccess }: ILogin) => {
       await contract.subscribe(account, subscriptionValue);
     }
   };
-
-  const connectWallet = async () => {
-    await connect();
-    setLoginStatus(LoginStatus.Connected);
-  };
+  // #endregion
 
   const access = async () => {
     navigate('/');
   };
-
-  useEffect(() => {
-    if (loginStatus !== LoginStatus.Succeeded) return;
-    onSuccess();
-  }, [loginStatus, onSuccess]);
-
-  useEffect(() => {
-    if (!account) return;
-    if (loginStatus !== LoginStatus.Disconnected) return;
-    setLoginStatus(LoginStatus.Connected);
-  }, [account, loginStatus]);
 
   return (
     <Modal show centered>
