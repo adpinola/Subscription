@@ -129,4 +129,27 @@ contract('Subscription Contract should', (accounts) => {
     const subscriptionStatus = await contractUnderTest.isSubscriptionValid.call({ from: subscriber });
     expect(subscriptionStatus).to.be.true;
   });
+
+  it('retrieve subscriber data', async () => {
+    await contractUnderTest.subscribe({
+      from: subscriber,
+      value: subscriptionValue,
+    });
+    const subscriptionStatus = await contractUnderTest.getSubscriberData.call({ from: subscriber });
+    expect(subscriptionStatus.subscribed).to.be.true;
+    expect(subscriptionStatus.payedAmount).to.equal(subscriptionValue.toString());
+    expect(subscriptionStatus.subscribedAt).to.not.equal(0);
+  });
+
+  it('retrieve subscriber data with "subscribed" property as "false" if it has expired', async () => {
+    await contractUnderTest.subscribe({
+      from: subscriber,
+      value: subscriptionValue,
+    });
+    await timeMachine.advanceTimeAndBlock(durationInMinutes * 60 + 1);
+    const subscriptionStatus = await contractUnderTest.getSubscriberData.call({ from: subscriber });
+    expect(subscriptionStatus.subscribed).to.be.false;
+    expect(subscriptionStatus.payedAmount).to.equal(subscriptionValue.toString());
+    expect(subscriptionStatus.subscribedAt).to.not.equal(0);
+  });
 });

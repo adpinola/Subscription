@@ -1,32 +1,9 @@
 @use './variables';
 
-.App {
-  text-align: center;
-  background-color: variables.$white-background;
-}
-
-.btn {
-  &.btn-secondary {
-    background-color: variables.$color-primary;
-    border: unset !important;
-
-    &:hover,
-    &:focus {
-      background-color: lighten(variables.$color-primary, 12%);
-      border: unset !important;
-    }
-
-    &:focus {
-      box-shadow: 0 0 0 0.2rem rgba(lighten(variables.$color-primary, 20%), 0.5);
-    }
-
-    &:not(:disabled):not(.disabled):active {
-      @extend .btn-secondary;
-    }
-
-    &[disabled] {
-      background-color: var(--secondary);
-      border-color: var(--gray);
-    }
-  }
+.app {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: variables.$light-pink;
 }

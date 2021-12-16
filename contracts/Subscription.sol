@@ -37,7 +37,7 @@ contract Subscription {
         uint256 limitDate = subscribersList[msg.sender].subscribedAt + subscriptionDuration;
         return isSubscribed && block.timestamp <= limitDate;
     }
-    
+
     function subscribe() external payable exactAmount {
         if (subscribersList[msg.sender].subscribed == true) {
             require(!isSubscriptionValid(), "Subscription is still active");
@@ -52,6 +52,14 @@ contract Subscription {
 
     function getBalance() external view onlyOwner returns (uint256) {
         return address(this).balance;
+    }
+
+    function getSubscriberData() external view returns (Subscriber memory data) {
+        bool isSubscribed = isSubscriptionValid();
+        uint256 at = subscribersList[msg.sender].subscribedAt;
+        uint256 payedAmount = subscribersList[msg.sender].payedAmount;
+        data = Subscriber(isSubscribed, payedAmount, at);
+        return data;
     }
 
     function remove() external onlyOwner {

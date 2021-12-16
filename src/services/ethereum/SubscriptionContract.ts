@@ -2,6 +2,7 @@ import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
 import { AbiItem } from 'web3-utils';
 import IContractData from './IContractData';
+import ISubscriberData from './ISubscriberData';
 import ISubscriptionContract from './ISubscriptionContract';
 
 export default class SubscriptionContract implements ISubscriptionContract {
@@ -47,5 +48,10 @@ export default class SubscriptionContract implements ISubscriptionContract {
 
   offSubscriptionSuccess(from: string, callback: (data: any) => void) {
     this.contractInstance.events.SubscriptionSuccess({ filter: { from } }).off('data', callback);
+  }
+
+  async getSubscriberData(from: string): Promise<ISubscriberData> {
+    const subscriberData = await this.contractInstance.methods.getSubscriberData().call({ from });
+    return subscriberData;
   }
 }

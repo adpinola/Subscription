@@ -1,4 +1,5 @@
 import IContractData from './IContractData';
+import ISubscriberData from './ISubscriberData';
 
 export default interface ISubscriptionContract {
   subscribe: (from: string, value: number) => Promise<void>;
@@ -9,4 +10,5 @@ export default interface ISubscriptionContract {
   getAllContractData: (from: string) => Promise<IContractData>;
   onSubscriptionSuccess: (from: string, callback: (data: any) => void) => void;
   offSubscriptionSuccess: (from: string, callback: (data: any) => void) => void;
+  getSubscriberData: (from: string) => Promise<ISubscriberData>;
 }

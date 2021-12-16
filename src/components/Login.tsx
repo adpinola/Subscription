@@ -43,7 +43,7 @@ const Login: FC<ILogin> = ({ onSuccess }: ILogin) => {
   // #endregion
 
   // #region SubscriptionSuccess event handling
-  const loginSuccess = async (data: any) => {
+  const loginSuccess = (data: any) => {
     const { from, subscribedAt } = data.returnValues;
     console.log({ event: data.event, from, subscribedAt });
     setLoginStatus(LoginStatus.Succeeded);
@@ -71,11 +71,11 @@ const Login: FC<ILogin> = ({ onSuccess }: ILogin) => {
       await contract.subscribe(account, subscriptionValue);
     }
   };
-  // #endregion
 
   const access = async () => {
     navigate('/');
   };
+  // #endregion
 
   return (
     <Modal show centered>
