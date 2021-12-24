@@ -150,4 +150,31 @@ contract('Subscription Contract should', (accounts) => {
       expect(error.message).to.equal(ERROR_MSG);
     }
   });
+
+  it('retrieve the list of subscribers to the owner', async () => {
+    await contractUnderTest.subscribe({
+      from: subscriber,
+      value: subscriptionValue,
+    });
+    const subscribers = await contractUnderTest.getAllSubscribers.call({
+      from: owner,
+    });
+    expect(subscribers.length).to.equal(1);
+    expect(subscribers[0]).to.equal(subscriber);
+  });
+
+  it('not retrieve the list of subscribers if the request comes from anyone else but the owner', async () => {
+    const ERROR_MSG = 'Returned error: VM Exception while processing transaction: revert Not Owner';
+    try {
+      await contractUnderTest.subscribe({
+        from: subscriber,
+        value: subscriptionValue,
+      });
+      await contractUnderTest.getAllSubscribers.call({
+        from: owner,
+      });
+    } catch (error) {
+      expect(error.message).to.equal(ERROR_MSG);
+    }
+  });
 });

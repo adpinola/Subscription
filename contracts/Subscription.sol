@@ -13,6 +13,7 @@ contract Subscription {
     address public owner;
     uint256 public subscriptionBaseValue;
     uint256 public subscriptionDuration;
+    address[] public subscribers;
     mapping(address => Subscriber) private subscribersList;
 
     constructor(uint256 _baseValue, uint256 _durationInMinutes) {
@@ -47,6 +48,7 @@ contract Subscription {
         } else {
             Subscriber memory newSubscriber = Subscriber(true, msg.value, block.timestamp);
             subscribersList[target] = newSubscriber;
+            subscribers.push(target);
         }
         emit SubscriptionSuccess(target, block.timestamp);
     }
@@ -65,6 +67,10 @@ contract Subscription {
 
     function getSubscriptionData() external view returns (Subscriber memory data) {
         return getSubscriberData(msg.sender);
+    }
+
+    function getAllSubscribers() public view onlyOwner returns (address[] memory) {
+        return subscribers;
     }
     
     function getBalance() external view onlyOwner returns (uint256) {
