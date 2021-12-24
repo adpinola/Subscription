@@ -47,7 +47,7 @@ contract('Subscription Contract should', (accounts) => {
       value: subscriptionValue,
     });
     const balance = await contractUnderTest.getBalance.call({ from: owner });
-    expect(balance.toNumber()).to.equal(subscriptionValue);
+    expect(balance.toString()).to.equal(subscriptionValue);
   });
 
   it('emit an event when the subscription succeeds', async () => {
@@ -88,22 +88,15 @@ contract('Subscription Contract should', (accounts) => {
     } catch (error) {
       expect(error.reason).to.equal(ERROR_REASON);
       const balance = await contractUnderTest.getBalance.call({ from: owner });
-      expect(balance.toNumber()).to.equal(subscriptionValue);
+      expect(balance.toString()).to.equal(subscriptionValue);
     }
   });
 
-  it('return the subcription status as a boolean', async () => {
-    await contractUnderTest.subscribe({
-      from: subscriber,
-      value: subscriptionValue,
-    });
-    const subscriptionStatus = await contractUnderTest.isSubscriptionValid.call({ from: subscriber });
-    expect(subscriptionStatus).to.be.true;
-  });
-
-  it('return "false" if an unsubscribed user attempts to retrieve its status', async () => {
-    const subscriptionStatus = await contractUnderTest.isSubscriptionValid.call({ from: subscriber });
-    expect(subscriptionStatus).to.be.false;
+  it('return proper data if an unsubscribed user attempts to retrieve its status', async () => {
+    const subscriptionData = await contractUnderTest.getSubscriptionData.call({ from: subscriber });
+    expect(subscriptionData.subscribed).to.be.false;
+    expect(subscriptionData.payedAmount).to.equal('0');
+    expect(subscriptionData.subscribedAt).to.equal('0');
   });
 
   it('return "false" if the subcription has expired', async () => {
@@ -112,8 +105,8 @@ contract('Subscription Contract should', (accounts) => {
       value: subscriptionValue,
     });
     await timeMachine.advanceTimeAndBlock(durationInMinutes * 60 + 1);
-    const subscriptionStatus = await contractUnderTest.isSubscriptionValid.call({ from: subscriber });
-    expect(subscriptionStatus).to.be.false;
+    const subscriptionData = await contractUnderTest.getSubscriptionData.call({ from: subscriber });
+    expect(subscriptionData.subscribed).to.be.false;
   });
 
   it('allow a subscriber to renew its subscription after it has expired', async () => {
@@ -126,30 +119,35 @@ contract('Subscription Contract should', (accounts) => {
       from: subscriber,
       value: subscriptionValue,
     });
-    const subscriptionStatus = await contractUnderTest.isSubscriptionValid.call({ from: subscriber });
-    expect(subscriptionStatus).to.be.true;
+    const subscriptionData = await contractUnderTest.getSubscriptionData.call({ from: subscriber });
+    expect(subscriptionData.subscribed).to.be.true;
   });
 
-  it('retrieve subscriber data', async () => {
+  it('retrieve data of a subscriber if the request comes from the owner', async () => {
     await contractUnderTest.subscribe({
       from: subscriber,
       value: subscriptionValue,
     });
-    const subscriptionStatus = await contractUnderTest.getSubscriberData.call({ from: subscriber });
-    expect(subscriptionStatus.subscribed).to.be.true;
-    expect(subscriptionStatus.payedAmount).to.equal(subscriptionValue.toString());
-    expect(subscriptionStatus.subscribedAt).to.not.equal(0);
+    const subscriberData = await contractUnderTest.getDataOfSubscriber(subscriber, {
+      from: owner,
+    });
+    expect(subscriberData.subscribed).to.be.true;
+    expect(subscriberData.payedAmount).to.equal(subscriptionValue.toString());
+    expect(subscriberData.subscribedAt).to.not.equal(0);
   });
 
-  it('retrieve subscriber data with "subscribed" property as "false" if it has expired', async () => {
-    await contractUnderTest.subscribe({
-      from: subscriber,
-      value: subscriptionValue,
-    });
-    await timeMachine.advanceTimeAndBlock(durationInMinutes * 60 + 1);
-    const subscriptionStatus = await contractUnderTest.getSubscriberData.call({ from: subscriber });
-    expect(subscriptionStatus.subscribed).to.be.false;
-    expect(subscriptionStatus.payedAmount).to.equal(subscriptionValue.toString());
-    expect(subscriptionStatus.subscribedAt).to.not.equal(0);
+  it('not retrieve data of a subscriber if the request comes from anyone else but the owner', async () => {
+    const ERROR_MSG = 'Returned error: VM Exception while processing transaction: revert Not Owner';
+    try {
+      await contractUnderTest.subscribe({
+        from: subscriber,
+        value: subscriptionValue,
+      });
+      await contractUnderTest.getDataOfSubscriber(subscriber, {
+        from: subscriber,
+      });
+    } catch (error) {
+      expect(error.message).to.equal(ERROR_MSG);
+    }
   });
 });

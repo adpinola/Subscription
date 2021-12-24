@@ -32,34 +32,43 @@ contract Subscription {
         _;
     }
 
-    function isSubscriptionValid() public view returns (bool) {
-        bool isSubscribed = subscribersList[msg.sender].subscribed == true;
-        uint256 limitDate = subscribersList[msg.sender].subscribedAt + subscriptionDuration;
+    function isSubscriptionValid(address subscriberAddress) private view returns (bool) {
+        bool isSubscribed = subscribersList[subscriberAddress].subscribed == true;
+        uint256 limitDate = subscribersList[subscriberAddress].subscribedAt + subscriptionDuration;
         return isSubscribed && block.timestamp <= limitDate;
     }
 
     function subscribe() external payable exactAmount {
-        if (subscribersList[msg.sender].subscribed == true) {
-            require(!isSubscriptionValid(), "Subscription is still active");
-            subscribersList[msg.sender].payedAmount += msg.value;
-            subscribersList[msg.sender].subscribedAt = block.timestamp;
+        address target = msg.sender;
+        if (subscribersList[target].subscribed == true) {
+            require(!isSubscriptionValid(target), "Subscription is still active");
+            subscribersList[target].payedAmount += msg.value;
+            subscribersList[target].subscribedAt = block.timestamp;
         } else {
             Subscriber memory newSubscriber = Subscriber(true, msg.value, block.timestamp);
-            subscribersList[msg.sender] = newSubscriber;
+            subscribersList[target] = newSubscriber;
         }
-        emit SubscriptionSuccess(msg.sender, block.timestamp);
+        emit SubscriptionSuccess(target, block.timestamp);
     }
 
-    function getBalance() external view onlyOwner returns (uint256) {
-        return address(this).balance;
-    }
-
-    function getSubscriberData() external view returns (Subscriber memory data) {
-        bool isSubscribed = isSubscriptionValid();
-        uint256 at = subscribersList[msg.sender].subscribedAt;
-        uint256 payedAmount = subscribersList[msg.sender].payedAmount;
+    function getSubscriberData(address subscriberAddress) private view returns (Subscriber memory data) {
+        bool isSubscribed = isSubscriptionValid(subscriberAddress);
+        uint256 at = subscribersList[subscriberAddress].subscribedAt;
+        uint256 payedAmount = subscribersList[subscriberAddress].payedAmount;
         data = Subscriber(isSubscribed, payedAmount, at);
         return data;
+    }
+
+    function getDataOfSubscriber(address subscriberAddress) external view onlyOwner returns (Subscriber memory data) {
+        return getSubscriberData(subscriberAddress);
+    }
+
+    function getSubscriptionData() external view returns (Subscriber memory data) {
+        return getSubscriberData(msg.sender);
+    }
+    
+    function getBalance() external view onlyOwner returns (uint256) {
+        return address(this).balance;
     }
 
     function remove() external onlyOwner {
@@ -70,4 +79,5 @@ contract Subscription {
         (bool sent, ) = msg.sender.call{value: address(this).balance}("");
         require(sent, "Failed to send Ether");
     }
+
 }
