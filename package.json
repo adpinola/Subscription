@@ -33,6 +33,7 @@
   "license": "ISC",
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
+    "@truffle/hdwallet-provider": "^2.0.0",
     "@types/node": "^16.11.12",
     "@types/react": "^17.0.37",
     "@types/react-dom": "^17.0.11",

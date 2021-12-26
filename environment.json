@@ -1,4 +1,8 @@
 {
   "subscriptionValue": "10000000000000000",
-  "durationInMinutes": 10
+  "durationInMinutes": 10,
+  "rinkeby": {
+    "mnemonic": "__MNEMONIC__",
+    "endpoint": "__ENDPOINT__"
+  }
 }
