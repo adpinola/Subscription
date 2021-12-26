@@ -1,0 +1,8 @@
+.subscriber-list {
+  overflow-y: scroll;
+  height: 200px;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
