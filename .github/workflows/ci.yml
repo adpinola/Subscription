@@ -35,7 +35,11 @@ jobs:
           npm run contract:deploy -- --network rinkeby
           cp build/contracts/Subscription.json src/assets/Subscription.json
 
+      - name: Build site
+        run: npm run build
+
       - name: Deploy GH Page
+        if: success()
         uses: crazy-max/ghaction-github-pages@v1
         with:
           target_branch: gh-pages

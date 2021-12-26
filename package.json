@@ -13,8 +13,6 @@
     "contract:deploy": "truffle deploy",
     "contract:interact": "node scripts/interact.ts",
     "contract:test": "truffle run coverage",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
     "solhint": "./node_modules/.bin/solhint -f table contracts/**/*.sol",
     "lint:eslint": "eslint src/**/*.{js,jsx,ts,tsx}",
     "format:eslint": "eslint --fix src/**/*.{js,jsx,ts,tsx}",
