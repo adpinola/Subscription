@@ -16,6 +16,7 @@ const Admin: FC = () => {
   const [balance, setBalance] = useState(0);
   const [subscribers, setSubscribers] = useState<Array<string>>([]);
 
+  // #region Load initial data
   useEffect(() => {
     const getData = async () => {
       const allContractData = await contract.getAllContractData(account);
@@ -29,7 +30,13 @@ const Admin: FC = () => {
     };
 
     getData();
+    contract.onSubscriptionSuccess('', getData);
+
+    return () => {
+      contract.offSubscriptionSuccess('', getData);
+    };
   }, [account, contract]);
+  // #endregion
 
   return (
     <Card border="dark" style={{ width: '32rem' }}>
@@ -44,7 +51,9 @@ const Admin: FC = () => {
         <Card.Text className="text-muted">Subscribers</Card.Text>
         <ListGroup variant="flush" className="subscriber-list">
           {subscribers.map((subscriber) => (
-            <ListGroup.Item className="text-muted">{subscriber}</ListGroup.Item>
+            <ListGroup.Item className="text-muted" key={subscriber}>
+              {subscriber}
+            </ListGroup.Item>
           ))}
         </ListGroup>
       </Card.Body>

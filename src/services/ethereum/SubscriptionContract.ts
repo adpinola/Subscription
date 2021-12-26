@@ -51,10 +51,22 @@ export default class SubscriptionContract implements ISubscriptionContract {
   }
 
   onSubscriptionSuccess(from: string, callback: (data: any) => void) {
-    this.contractInstance.events.SubscriptionSuccess({ filter: { from } }).on('data', callback);
+    let filter = {};
+    if (from) {
+      filter = {
+        from,
+      };
+    }
+    this.contractInstance.events.SubscriptionSuccess({ filter }).on('data', callback);
   }
 
   offSubscriptionSuccess(from: string, callback: (data: any) => void) {
-    this.contractInstance.events.SubscriptionSuccess({ filter: { from } }).off('data', callback);
+    let filter = {};
+    if (from) {
+      filter = {
+        from,
+      };
+    }
+    this.contractInstance.events.SubscriptionSuccess({ filter }).off('data', callback);
   }
 }
