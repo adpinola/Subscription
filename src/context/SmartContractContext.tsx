@@ -4,9 +4,9 @@ import Web3 from 'web3';
 import ISubscriptionContract from '../services/ethereum/ISubscriptionContract';
 import useSubscriptionContract from '../hooks/useSubscriptionContract';
 import useWeb3 from '../hooks/useWeb3';
-import { abi, networks } from '../assets/Subscription.json';
+import { abi } from '../assets/Subscription.json';
 
-const contractAddress = networks['5777'].address;
+const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
 
 const SubscriptionContext = React.createContext<ISubscriptionContract | undefined>(undefined);
 const MetaMaskContext = React.createContext<(() => Promise<void>) | undefined>(undefined);
@@ -18,7 +18,7 @@ interface ISmartContractContextProvider {
 
 const SmartContractContextProvider: FC<ISmartContractContextProvider> = (props) => {
   const { web3, account, connectToMetaMask } = useWeb3();
-  const contractInstance = useSubscriptionContract(web3 as Web3, abi as AbiItem[], contractAddress);
+  const contractInstance = useSubscriptionContract(web3 as Web3, abi as AbiItem[], contractAddress as string);
   return (
     <AccountContext.Provider value={account}>
       <MetaMaskContext.Provider value={connectToMetaMask}>
