@@ -16,9 +16,9 @@ jobs:
           INFURA_ENDPOINT: ${{secrets.INFURA_ENDPOINT}}
           ETH_NETWORK_ID: ${{secrets.ETH_NETWORK_ID}}
         run: |
-          sed -i "s@__MNEMONIC__@${WALLET_MNEMONIC}" environment.json
-          sed -i "s@__ENDPOINT__@${INFURA_ENDPOINT}" environment.json
-          sed -i "s@__REACT_APP_EHTEREUM_NETWORK_ID__@${ETH_NETWORK_ID}" .env
+          sed -i "s@__MNEMONIC__@${WALLET_MNEMONIC}@g" environment.json
+          sed -i "s@__ENDPOINT__@${INFURA_ENDPOINT}@g" environment.json
+          sed -i "s@__REACT_APP_EHTEREUM_NETWORK_ID__@${ETH_NETWORK_ID}@g" .env
 
       - name: Linting
         run: |
@@ -40,5 +40,5 @@ jobs:
           target_branch: gh-pages
           build_dir: build
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_REPO_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
 
