@@ -34,6 +34,7 @@ contract Subscription {
     }
 
     function isSubscriptionValid(address subscriberAddress) private view returns (bool) {
+        if( subscriberAddress == owner ) return true;
         bool isSubscribed = subscribersList[subscriberAddress].subscribed == true;
         uint256 limitDate = subscribersList[subscriberAddress].subscribedAt + subscriptionDuration;
         return isSubscribed && block.timestamp <= limitDate;

@@ -12,8 +12,9 @@ const App: FC = () => {
   const [isOwner, setIsOwner] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
 
-  const onSuccess = () => {
+  const onSuccess = (ownership: boolean) => {
     setIsSubscribed(true);
+    setIsOwner(ownership);
   };
 
   useEffect(() => {

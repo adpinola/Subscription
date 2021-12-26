@@ -23,12 +23,20 @@ export default class SubscriptionContract implements ISubscriptionContract {
     return this.contractInstance.methods.withdraw().send({ from });
   }
 
-  async isSubscriptionValid(from: string): Promise<boolean> {
-    return this.contractInstance.methods.isSubscriptionValid().call({ from });
-  }
-
   async remove(from: string): Promise<void> {
     return this.contractInstance.methods.remove().send({ from });
+  }
+
+  async getSubscriptionData(from: string): Promise<ISubscriberData> {
+    return this.contractInstance.methods.getSubscriptionData().call({ from });
+  }
+
+  async getDataOfSubscriber(from: string, of: string): Promise<ISubscriberData> {
+    return this.contractInstance.methods.getDataOfSubscriber(of).call({ from });
+  }
+
+  async getAllSubscribers(from: string): Promise<string[]> {
+    return this.contractInstance.methods.getAllSubscribers().call({ from });
   }
 
   async getAllContractData(from: string): Promise<IContractData> {
@@ -48,10 +56,5 @@ export default class SubscriptionContract implements ISubscriptionContract {
 
   offSubscriptionSuccess(from: string, callback: (data: any) => void) {
     this.contractInstance.events.SubscriptionSuccess({ filter: { from } }).off('data', callback);
-  }
-
-  async getSubscriberData(from: string): Promise<ISubscriberData> {
-    const subscriberData = await this.contractInstance.methods.getSubscriberData().call({ from });
-    return subscriberData;
   }
 }

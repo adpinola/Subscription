@@ -8,7 +8,7 @@ const Subscriber: FC = () => {
   const account = useAccount();
   const contract = useSubscriptionContext();
   const [subscriberData, setSubscriberData] = useState<ISubscriberData>({
-    isSubscribed: false,
+    subscribed: false,
     payedAmount: 0,
     subscribedAt: 0,
   });
@@ -21,7 +21,7 @@ const Subscriber: FC = () => {
   useEffect(() => {
     const getData = async () => {
       const allContractData = await contract.getAllContractData(account);
-      const data = await contract.getSubscriberData(account);
+      const data = await contract.getSubscriptionData(account);
       setSubscriberData(data);
       setContractData(allContractData);
     };

@@ -1,8 +1,10 @@
 import React, { FC, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Modal } from 'react-bootstrap';
+import { FaLock } from 'react-icons/fa';
 import MetaMaskIcon from './MetaMaskIcon';
 import { useMetaMask, useAccount, useSubscriptionContext } from '../context/SmartContractContext';
+import '../styles/Login.scss';
 
 enum LoginStatus {
   Disconnected = 'DISCONNECTED',
@@ -11,11 +13,12 @@ enum LoginStatus {
 }
 
 interface ILogin {
-  onSuccess: () => void;
+  onSuccess: (isOwner: boolean) => void;
 }
 
 const Login: FC<ILogin> = ({ onSuccess }: ILogin) => {
   const [loginStatus, setLoginStatus] = useState<LoginStatus>(LoginStatus.Disconnected);
+  const [isOwner, setIsOwner] = useState(false);
   const connect = useMetaMask();
   const account = useAccount();
   const navigate = useNavigate();
@@ -28,9 +31,10 @@ const Login: FC<ILogin> = ({ onSuccess }: ILogin) => {
         setLoginStatus(LoginStatus.Disconnected);
         return;
       }
-      const validSubscription = await contract.isSubscriptionValid(account);
-      if (validSubscription) setLoginStatus(LoginStatus.Succeeded);
-      else setLoginStatus(LoginStatus.Connected);
+      const { owner } = await contract.getAllContractData(account);
+      setIsOwner(owner.toUpperCase() === account.toUpperCase());
+      const { subscribed } = await contract.getSubscriptionData(account);
+      setLoginStatus(subscribed ? LoginStatus.Succeeded : LoginStatus.Connected);
     };
     onAccountChange();
   }, [account, contract]);
@@ -38,8 +42,8 @@ const Login: FC<ILogin> = ({ onSuccess }: ILogin) => {
 
   // #region Login Success
   useEffect(() => {
-    if (loginStatus === LoginStatus.Succeeded) onSuccess();
-  }, [loginStatus, onSuccess]);
+    if (loginStatus === LoginStatus.Succeeded) onSuccess(isOwner);
+  }, [loginStatus, isOwner, onSuccess]);
   // #endregion
 
   // #region SubscriptionSuccess event handling
@@ -65,7 +69,8 @@ const Login: FC<ILogin> = ({ onSuccess }: ILogin) => {
 
   const subscribe = async () => {
     const { subscriptionValue } = await contract.getAllContractData(account);
-    if (await contract.isSubscriptionValid(account)) {
+    const { subscribed } = await contract.getSubscriptionData(account);
+    if (subscribed) {
       setLoginStatus(LoginStatus.Succeeded);
     } else {
       await contract.subscribe(account, subscriptionValue);
@@ -75,6 +80,10 @@ const Login: FC<ILogin> = ({ onSuccess }: ILogin) => {
   const access = async () => {
     navigate('/');
   };
+
+  const goToAdminPage = async () => {
+    navigate('/admin');
+  };
   // #endregion
 
   return (
@@ -83,7 +92,7 @@ const Login: FC<ILogin> = ({ onSuccess }: ILogin) => {
         <Modal.Title>Connect your wallet and subscribe!</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        Contribute with just <b>0.001 ETH</b> and get access to awesome content.
+        Contribute with just <b>0.01 ETH</b> and get access to awesome content.
       </Modal.Body>
       <Modal.Footer className="d-flex justify-content-center">
         {loginStatus === LoginStatus.Disconnected && (
@@ -105,6 +114,10 @@ const Login: FC<ILogin> = ({ onSuccess }: ILogin) => {
             Connected with wallet <b>{account}</b>
             <Button variant="secondary" onClick={access} className="d-flex">
               <div>Access Site</div>
+            </Button>
+            <Button variant="primary" onClick={goToAdminPage} className="d-flex align-items-center" disabled={!isOwner}>
+              <FaLock />
+              <div>Admin Page</div>
             </Button>
           </>
         )}

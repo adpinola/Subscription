@@ -1,5 +1,5 @@
 export default interface ISubscriberData {
-  isSubscribed: boolean;
+  subscribed: boolean;
   payedAmount: number;
   subscribedAt: number;
 }
