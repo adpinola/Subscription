@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Route, BrowserRouter, Routes } from 'react-router-dom';
+import { Route, Routes, HashRouter } from 'react-router-dom';
 import Login from './components/Login';
 import PrivateRoute from './components/PrivateRoute';
 import Admin from './components/Admin';
@@ -24,7 +24,7 @@ const App: FC = () => {
 
   return (
     <div className="app">
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route path="/login" element={<Login onSuccess={onSuccess} />} />
           <Route path="/admin" element={<PrivateRoute authCondition={isOwner} />}>
@@ -34,7 +34,7 @@ const App: FC = () => {
             <Route path="/" element={<Subscriber />} />
           </Route>
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 {
   "name": "subscription-contract",
+  "homepage": "https://adpinola.github.io/Subscription/",
   "version": "0.0.1",
   "description": "Web Application the uses a Smart Contract to allow logins",
   "directories": {
@@ -13,6 +14,8 @@
     "contract:deploy": "truffle deploy",
     "contract:interact": "node scripts/interact.ts",
     "contract:test": "truffle run coverage",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "solhint": "./node_modules/.bin/solhint -f table contracts/**/*.sol",
     "lint:eslint": "eslint src/**/*.{js,jsx,ts,tsx}",
     "format:eslint": "eslint --fix src/**/*.{js,jsx,ts,tsx}",
