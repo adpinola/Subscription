@@ -17,7 +17,7 @@ Decentralized Application that uses a Smart Contract to allow/deny access to spe
 To get started developing for this projects, please clone the repo:
 
 ```bash
-git clone https://github.com/adpinola/truco-live.git
+git clone https://github.com/adpinola/Subscription.git
 ```
 
 ### Prerequisites
