@@ -33,7 +33,6 @@ jobs:
       - name: Deploy Contract
         run: |
           npm run contract:deploy -- --network rinkeby
-          cp build/contracts/Subscription.json src/assets/Subscription.json
 
       - name: Build site
         run: npm run build
@@ -46,4 +45,3 @@ jobs:
           build_dir: build
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
-

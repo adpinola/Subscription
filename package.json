@@ -7,12 +7,11 @@
     "test": "test"
   },
   "scripts": {
-    "dev": "react-scripts start",
+    "dev": "truffle deploy --network ganache && react-scripts start",
     "build": "react-scripts build",
     "eject": "react-scripts eject",
     "contract:build": "truffle compile",
     "contract:deploy": "truffle deploy",
-    "contract:interact": "node scripts/interact.ts",
     "contract:test": "truffle run coverage",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
@@ -35,7 +34,6 @@
   "author": "adpinola",
   "license": "ISC",
   "dependencies": {
-    "@metamask/detect-provider": "^1.2.0",
     "@truffle/hdwallet-provider": "^2.0.0",
     "@types/node": "^16.11.12",
     "@types/react": "^17.0.37",

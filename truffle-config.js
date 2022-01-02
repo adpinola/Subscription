@@ -2,12 +2,13 @@ const HDWalletProvider = require('@truffle/hdwallet-provider');
 const { mnemonic, endpoint } = require('./environment.json').rinkeby;
 
 module.exports = {
+  contracts_build_directory: './src/assets',
   networks: {
     ganache: {
       host: 'localhost',
       port: 7545,
       network_id: 5777,
-      gas: 300000,
+      gas: 3000000,
       from: '0x7da6A85aE424B55Fa9A69e96489bcCdead21b066',
     },
     rinkeby: {
