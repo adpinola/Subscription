@@ -54,7 +54,7 @@
     "web3-utils": "^1.7.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.16.7",
+    "@babel/core": "^7.16.10",
     "@babel/preset-env": "^7.16.10",
     "@babel/preset-typescript": "^7.16.0",
     "@typescript-eslint/parser": "^5.10.0",
